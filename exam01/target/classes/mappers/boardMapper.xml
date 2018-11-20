@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.kh.mapper.boardMapper">
+	<insert id="insert">
+		insert into tbl_board(bno, title, content, writer)
+		values(board_seq.nextval, #{title}, #{content}, #{writer})
+	</insert>
+	
+	<select id="selectByBno" resultType="BoardVo">
+		select * from tbl_board
+		where bno = #{bno}
+	</select>
+	
+	<select id="selectAll" resultType="BoardVo">
+		select * from tbl_board
+		order by bno desc
+	</select>
+	
+	<update id="update">
+		update tbl_board set
+			title = #{title},
+			content = #{content},
+			writer = #{writer}
+		where bno = #{bno}
+	</update>
+	
+	<delete id="delete">
+		delete from tbl_board
+		where bno = #{bno}
+	</delete>
+	
+	<select id="listPage" resultType="BoardVo">
+		select * from
+        		(select rownum rnum, a.* from
+                            (select * from tbl_board
+                       		<include refid="search"></include>    
+                            order by bno desc) a)
+		where rnum &gt;= #{startRow} and rnum &lt;= #{endRow}
+	</select>
+	
+	<select id="listCount" resultType="int">
+		select count(*) from tbl_board
+		 <include refid="search"></include>
+	</select>
+	
+	<sql id="search">
+		<if test="searchType != null">  
+             <if test="searchType == 't'.toString()">
+             where title like '%' || #{keyword} || '%'
+             </if>
+             <if test="searchType == 'c'.toString()">
+             where content like '%' || #{keyword} || '%'
+             </if>
+             <if test="searchType == 'w'.toString()">
+             where writer like '%' || #{keyword} || '%'
+             </if>
+             <if test="searchType == 'tc'.toString()">
+             where title like '%' || #{keyword} || '%'
+             or content like '%' || #{keyword} || '%'
+             </if>
+             <if test="searchType == 'tw'.toString()">
+             where title like '%' || #{keyword} || '%'
+             or writer like '%' || #{keyword} || '%'
+             </if>
+             <if test="searchType == 'cw'.toString()">
+             where content like '%' || #{keyword} || '%'
+             or writer like '%' || #{keyword} || '%'
+             </if>
+             <if test="searchType == 'tcw'.toString()">
+             where title like '%' || #{keyword} || '%'
+             or content like '%' || #{keyword} || '%'
+             or writer like '%' || #{keyword} || '%'
+             </if>
+         </if>    
+	
+	</sql>
+	
+</mapper>
